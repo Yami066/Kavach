@@ -20,6 +20,7 @@ import {
 import { CameraScanner } from "./CameraScanner";
 import { DestinationCard } from "./DestinationCard";
 import { DemoQrCards } from "./DemoQrCards";
+import { FeaturesShowcase } from "./FeaturesShowcase";
 import { decodeQRFromFile } from "@/lib/qrDecoder";
 
 interface ScanScreenProps {
@@ -89,6 +90,9 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({
     severity: "DANGER" | "CAUTION" | "SAFE"
   ) => {
     try {
+      if (typeof window !== "undefined") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
       setIsProcessingFile(true);
       setUploadError(null);
       // Generate real QR Data URL
@@ -329,7 +333,10 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({
       )}
 
       {/* Stage 5 Demo Target Scannable QRs */}
-      <DemoQrCards onSelectTarget={handleSampleSelect} />
+      <DemoQrCards
+        onSelectTarget={handleSampleSelect}
+        onDirectInspect={onInspectDestination}
+      />
 
       {/* Notice Banner (matching design.md section 5) */}
       <div className="w-full max-w-2xl bg-cream-yellow rounded-card p-5 mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-clay">
@@ -352,6 +359,9 @@ export const ScanScreen: React.FC<ScanScreenProps> = ({
           </span>
         </div>
       </div>
+
+      {/* Interactive Feature Radar / Circles Section */}
+      <FeaturesShowcase />
 
       {/* 3 Pastel Feature Cards Grid (design.md rule: one pastel per card) */}
       <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-3 gap-5">

@@ -15,9 +15,10 @@ import {
 
 interface DemoQrCardsProps {
   onSelectTarget: (url: string, expectedSeverity: "DANGER" | "CAUTION" | "SAFE") => void;
+  onDirectInspect?: (url: string, expectedSeverity: "DANGER" | "CAUTION" | "SAFE") => void;
 }
 
-export function DemoQrCards({ onSelectTarget }: DemoQrCardsProps) {
+export function DemoQrCards({ onSelectTarget, onDirectInspect }: DemoQrCardsProps) {
   const [fakeBankQrUrl, setFakeBankQrUrl] = useState<string>("");
   const [safeMerchantQrUrl, setSafeMerchantQrUrl] = useState<string>("");
   const [baseUrl, setBaseUrl] = useState<string>("http://localhost:3000");
@@ -132,20 +133,33 @@ export function DemoQrCards({ onSelectTarget }: DemoQrCardsProps) {
 
           <div className="flex flex-col gap-2 pt-1">
             <button
-              onClick={() => onSelectTarget(fakeBankUrl, "DANGER")}
+              onClick={() => {
+                if (onDirectInspect) {
+                  onDirectInspect(fakeBankUrl, "DANGER");
+                } else {
+                  onSelectTarget(fakeBankUrl, "DANGER");
+                }
+              }}
               className="btn-primary w-full text-xs py-2.5 justify-center bg-danger hover:bg-[#B83232] text-white"
             >
               <Play className="w-3.5 h-3.5 fill-current" />
               <span>Detonate in Sandbox</span>
             </button>
             <div className="flex gap-2">
+              <button
+                onClick={() => onSelectTarget(fakeBankUrl, "DANGER")}
+                className="btn-secondary flex-1 text-[11px] py-1.5 justify-center"
+                title="Quarantine & preview destination card"
+              >
+                <span>Quarantine</span>
+              </button>
               {fakeBankQrUrl && (
                 <button
                   onClick={() => downloadQr(fakeBankQrUrl, "fake-bank-qr.png")}
-                  className="btn-secondary flex-1 text-[11px] py-1.5 justify-center"
+                  className="btn-secondary text-[11px] py-1.5 px-2.5 justify-center"
+                  title="Download QR"
                 >
                   <Download className="w-3 h-3" />
-                  <span>Download QR</span>
                 </button>
               )}
               <a
@@ -202,20 +216,33 @@ export function DemoQrCards({ onSelectTarget }: DemoQrCardsProps) {
 
           <div className="flex flex-col gap-2 pt-1">
             <button
-              onClick={() => onSelectTarget(safeMerchantUrl, "SAFE")}
+              onClick={() => {
+                if (onDirectInspect) {
+                  onDirectInspect(safeMerchantUrl, "SAFE");
+                } else {
+                  onSelectTarget(safeMerchantUrl, "SAFE");
+                }
+              }}
               className="btn-primary w-full text-xs py-2.5 justify-center bg-[#227010] hover:bg-[#1A570C] text-white"
             >
               <Play className="w-3.5 h-3.5 fill-current" />
               <span>Inspect in Sandbox</span>
             </button>
             <div className="flex gap-2">
+              <button
+                onClick={() => onSelectTarget(safeMerchantUrl, "SAFE")}
+                className="btn-secondary flex-1 text-[11px] py-1.5 justify-center"
+                title="Quarantine & preview destination card"
+              >
+                <span>Quarantine</span>
+              </button>
               {safeMerchantQrUrl && (
                 <button
                   onClick={() => downloadQr(safeMerchantQrUrl, "safe-merchant-qr.png")}
-                  className="btn-secondary flex-1 text-[11px] py-1.5 justify-center"
+                  className="btn-secondary text-[11px] py-1.5 px-2.5 justify-center"
+                  title="Download QR"
                 >
                   <Download className="w-3 h-3" />
-                  <span>Download QR</span>
                 </button>
               )}
               <a
