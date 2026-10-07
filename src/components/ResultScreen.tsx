@@ -1,96 +1,120 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   ShieldAlert,
   ShieldCheck,
   AlertOctagon,
   Image as ImageIcon,
   RotateCcw,
-  ExternalLink,
-  ChevronRight,
   Info,
-  CheckCircle2,
-  XCircle,
+  Scale,
 } from "lucide-react";
 import { SandboxScreenshot } from "./SandboxScreenshot";
+import { EvidenceData } from "./AnalyzingScreen";
 
 export type SeverityType = "DANGER" | "CAUTION" | "SAFE";
 
 interface ResultScreenProps {
   onScanAnother: () => void;
   initialSeverity?: SeverityType;
+  targetUrl?: string;
+  evidence?: EvidenceData | null;
 }
 
 export const ResultScreen: React.FC<ResultScreenProps> = ({
   onScanAnother,
   initialSeverity = "DANGER",
+  targetUrl,
+  evidence,
 }) => {
-  const [severity, setSeverity] = useState<SeverityType>(initialSeverity);
-  const [showScreenshotModal, setShowScreenshotModal] = useState<boolean>(false);
+  // Determine starting severity from evidence risk or initial
+  const activeEvidenceSeverity = evidence?.risk?.severity || initialSeverity;
+  const [severity, setSeverity] = useState<SeverityType>(activeEvidenceSeverity);
 
-  // Dynamic configuration based on severity
+  useEffect(() => {
+    if (evidence?.risk?.severity) {
+      setSeverity(evidence.risk.severity);
+    }
+  }, [evidence]);
+
+  const activeScore =
+    evidence?.risk && severity === evidence.risk.severity
+      ? evidence.risk.score
+      : severity === "DANGER"
+      ? 87
+      : severity === "CAUTION"
+      ? 48
+      : 8;
+
+  // Dynamic configuration based on severity & risk engine
   const config = {
     DANGER: {
       badgeText: "DANGER · HIGH RISK",
       badgeClass: "bg-[#FDECEC] text-danger border-[2.5px] border-danger",
-      score: 87,
+      score: activeScore,
       headline: "Possible bank impersonation",
       description:
-        "The sandbox intercepted a credential harvesting page masquerading as a legitimate banking institution. Submitting credentials will compromise your account.",
-      destinationUrl: "https://secure-hdfc-kyc-update.com/login",
+        "The risk engine detected high-severity credential traps, password requests, and look-alike domain heuristics in the quarantined destination.",
+      destinationUrl: targetUrl || "https://secure-hdfc-kyc-update.com/login",
       stickerText: "MALICIOUS",
       stickerBg: "bg-coral text-white",
-      reasons: [
-        {
-          title: "Look-alike domain",
-          weight: "+20",
-          detail: "Domain secure-hdfc-kyc-update.com mimics an authorized financial institution.",
-        },
-        {
-          title: "Password requested",
-          weight: "+25",
-          detail: "Found HTML input[type='password'] on untrusted, freshly registered host.",
-        },
-        {
-          title: "OTP requested",
-          weight: "+25",
-          detail: "Interactive 6-digit OTP verification field identified in form DOM.",
-        },
-        {
-          title: "Redirect detected",
-          weight: "+10",
-          detail: "Initial shortened link hopped through 2 obscured HTTP redirect chains.",
-        },
-      ],
+      reasons: evidence?.risk?.breakdown && severity === evidence.risk.severity
+        ? evidence.risk.breakdown.map((b) => ({
+            title: b.reason,
+            weight: `+${b.points}`,
+            detail: b.detail,
+          }))
+        : [
+            {
+              title: "Look-alike domain",
+              weight: "+20",
+              detail: `Domain mimics an authorized banking/financial institution.`,
+            },
+            {
+              title: "Password requested",
+              weight: "+25",
+              detail: "Found HTML input[type='password'] on untrusted, freshly registered host.",
+            },
+            {
+              title: "OTP requested",
+              weight: "+25",
+              detail: "Interactive 6-digit OTP verification field identified in form DOM.",
+            },
+            {
+              title: "Redirect detected",
+              weight: "+10",
+              detail: "Destination hopped through obscured HTTP redirect chains.",
+            },
+          ],
       primaryActionText: "DO NOT OPEN",
       primaryActionClass: "btn-danger",
     },
     CAUTION: {
       badgeText: "CAUTION · MEDIUM RISK",
       badgeClass: "bg-cream-yellow text-ink border-[2.5px] border-ink",
-      score: 48,
+      score: activeScore,
       headline: "Unverified shortlink & tracking hops",
       description:
         "The destination hides behind URL shorteners and redirects through an ad-tracking gateway with no reputation history.",
-      destinationUrl: "https://bit.ly/promo-discount-2026",
+      destinationUrl: targetUrl || "https://bit.ly/promo-discount-2026",
       stickerText: "SUSPICIOUS",
       stickerBg: "bg-butter text-ink",
       reasons: [
         {
           title: "Multi-hop redirect chain",
-          weight: "+20",
-          detail: "Target executed 3 consecutive 302 HTTP redirects to obfuscate end URL.",
+          weight: "+10",
+          detail: "Target executed consecutive HTTP redirects to obfuscate end URL.",
+        },
+        {
+          title: "Suspicious URL structure",
+          weight: "+10",
+          detail: "URL contains urgency triggers or non-standard redirection parameters.",
         },
         {
           title: "Unknown domain reputation",
-          weight: "+18",
-          detail: "Domain registered less than 14 days ago without historical trust.",
-        },
-        {
-          title: "Aggressive tracker scripts",
           weight: "+10",
-          detail: "Headless container detected unauthorized cookie synchronization attempt.",
+          detail: "Domain registered recently without historical trust certificates.",
         },
       ],
       primaryActionText: "PROCEED WITH CAUTION",
@@ -99,11 +123,12 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
     SAFE: {
       badgeText: "SAFE · LOW RISK",
       badgeClass: "bg-[#E8F8DE] text-[#227010] border-[2.5px] border-[#227010]",
-      score: 8,
+      score: activeScore,
       headline: "Verified official merchant",
       description:
         "The destination conforms to verified merchant specifications. No deceptive forms, redirects, or credential traps were observed.",
-      destinationUrl: "upi://pay?pa=sharma.kirana@okaxis&pn=SharmaKirana",
+      destinationUrl:
+        targetUrl || "upi://pay?pa=sharma.kirana@okaxis&pn=SharmaKirana",
       stickerText: "VERIFIED",
       stickerBg: "bg-mint text-ink",
       reasons: [
@@ -129,12 +154,12 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
   }[severity];
 
   return (
-    <section className="w-full max-w-4xl mx-auto px-4 py-8 flex flex-col items-center">
-      {/* Interactive Scenario Switcher for Stage 1 Evaluator */}
+    <section className="w-full max-w-4xl mx-auto px-4 pt-2 pb-8 flex flex-col items-center">
+      {/* Interactive Scenario Switcher for Evaluator */}
       <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 mb-6 bg-white/90 border-[2.5px] border-ink rounded-full px-5 py-2.5 shadow-clay">
         <span className="text-xs font-bold uppercase tracking-wider text-muted flex items-center gap-1.5">
           <Info className="w-3.5 h-3.5 text-ink" />
-          <span>Stage 1 Evaluation State:</span>
+          <span>Stage 4 Risk Engine Evaluation:</span>
         </span>
         <div className="flex items-center gap-1.5">
           <button
@@ -145,7 +170,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                 : "bg-white text-ink border border-ink/30 hover:bg-cream"
             }`}
           >
-            Danger (87/100)
+            Danger (61–100)
           </button>
           <button
             onClick={() => setSeverity("CAUTION")}
@@ -155,7 +180,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                 : "bg-white text-ink border border-ink/30 hover:bg-cream"
             }`}
           >
-            Caution (48/100)
+            Caution (31–60)
           </button>
           <button
             onClick={() => setSeverity("SAFE")}
@@ -165,7 +190,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
                 : "bg-white text-ink border border-ink/30 hover:bg-cream"
             }`}
           >
-            Safe (08/100)
+            Safe (0–30)
           </button>
         </div>
       </div>
@@ -183,9 +208,11 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
           </span>
         </div>
 
-        {/* Severity Badge */}
-        <div className="flex items-center gap-2 mb-4">
-          <span className={`badge ${config.badgeClass} text-xs sm:text-sm font-extrabold uppercase tracking-wide`}>
+        {/* Severity Badge & Sandbox status */}
+        <div className="flex flex-wrap items-center gap-2 mb-4">
+          <span
+            className={`badge ${config.badgeClass} text-xs sm:text-sm font-extrabold uppercase tracking-wide`}
+          >
             {severity === "DANGER" ? (
               <AlertOctagon className="w-4 h-4 stroke-[2.5]" />
             ) : severity === "CAUTION" ? (
@@ -195,6 +222,16 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
             )}
             {config.badgeText}
           </span>
+
+          <span className="badge bg-mint text-ink border border-ink text-[11px] font-mono">
+            RISK_ENGINE_STAGE_4
+          </span>
+
+          {evidence && (
+            <span className="badge bg-cream text-muted border border-ink/20 text-[11px] font-mono">
+              WORKER_TIME: {evidence.execution_time_ms}ms
+            </span>
+          )}
         </div>
 
         {/* Score & Headline */}
@@ -208,9 +245,10 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
             </p>
           </div>
 
-          {/* Big Score Display (Display Font Bricolage Grotesque) */}
+          {/* Big Score Display */}
           <div className="flex flex-col items-center justify-center p-4 rounded-2xl bg-[#FAF8F5] border-[2.5px] border-ink shadow-brutal-sm min-w-[140px] shrink-0">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-muted">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-muted flex items-center gap-1">
+              <Scale className="w-3 h-3 text-ink" />
               RISK SCORE
             </span>
             <div className="flex items-baseline gap-1 mt-0.5">
@@ -237,10 +275,10 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
               }`}
             >
               {severity === "DANGER"
-                ? "CRITICAL RISK"
+                ? "61–100 DANGER"
                 : severity === "CAUTION"
-                ? "ELEVATED RISK"
-                : "LOW RISK"}
+                ? "31–60 CAUTION"
+                : "0–30 SAFE"}
             </span>
           </div>
         </div>
@@ -261,7 +299,7 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
         <div className="flex items-center justify-between mb-4">
           <div>
             <span className="text-xs uppercase font-bold tracking-widest text-muted">
-              EVIDENCE AUDIT
+              EVIDENCE AUDIT • STAGE 4 RULES
             </span>
             <h3 className="font-display font-black text-2xl text-ink tracking-tight">
               WHY WE FLAGGED IT
@@ -333,8 +371,10 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
               <span>[ Screenshot ]</span>
             </h3>
           </div>
-          <span className="chip text-xs text-muted">
-            1280x800 Viewport Buffer
+          <span className="chip text-xs text-muted font-mono">
+            {evidence?.screenshot_base64
+              ? "PLAYWRIGHT_DISPOSABLE_BUFFER"
+              : "1280x800 Viewport Buffer"}
           </span>
         </div>
 
@@ -344,7 +384,11 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
         </p>
 
         {/* Embedded Sandbox Screenshot Preview */}
-        <SandboxScreenshot severity={severity} url={config.destinationUrl} />
+        <SandboxScreenshot
+          severity={severity}
+          url={config.destinationUrl}
+          screenshotBase64={evidence?.screenshot_base64}
+        />
       </div>
 
       {/* Safety Actions Section (matching IMPLEMENTATION_PLAN.md: [ DO NOT OPEN ]) */}
@@ -380,8 +424,8 @@ export const ResultScreen: React.FC<ResultScreenProps> = ({
 
       {/* Footer Assurance Banner */}
       <div className="mt-8 text-center text-xs text-muted max-w-lg">
-        QR Kavach Isolated Worker • Session destroyed after capture • Zero
-        device exposure guaranteed
+        QR Kavach Isolated Worker • Session destroyed after capture • Simple
+        Risk Engine (Stage 4)
       </div>
     </section>
   );

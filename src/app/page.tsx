@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Navbar, ScreenMode } from "@/components/Navbar";
 import { ScanScreen } from "@/components/ScanScreen";
-import { AnalyzingScreen } from "@/components/AnalyzingScreen";
+import { AnalyzingScreen, EvidenceData } from "@/components/AnalyzingScreen";
 import { ResultScreen, SeverityType } from "@/components/ResultScreen";
 
 export default function Home() {
@@ -12,30 +12,15 @@ export default function Home() {
   const [targetUrl, setTargetUrl] = useState<string>(
     "https://secure-hdfc-kyc-update.com/login"
   );
+  const [evidenceData, setEvidenceData] = useState<EvidenceData | null>(null);
 
-  const handleStartScan = () => {
-    setSelectedSeverity("DANGER");
-    setTargetUrl("https://secure-hdfc-kyc-update.com/login");
-    setCurrentScreen("analyzing");
-  };
-
-  const handleUploadQR = (filename?: string) => {
-    setSelectedSeverity("DANGER");
-    setTargetUrl("https://secure-hdfc-kyc-update.com/login");
-    setCurrentScreen("analyzing");
-  };
-
-  const handleSelectSample = (type: "bank" | "shortlink" | "clean") => {
-    if (type === "bank") {
-      setSelectedSeverity("DANGER");
-      setTargetUrl("https://secure-hdfc-kyc-update.com/login");
-    } else if (type === "shortlink") {
-      setSelectedSeverity("CAUTION");
-      setTargetUrl("https://bit.ly/promo-discount-2026");
-    } else {
-      setSelectedSeverity("SAFE");
-      setTargetUrl("upi://pay?pa=sharma.kirana@okaxis&pn=SharmaKirana");
-    }
+  const handleInspectDestination = (
+    url: string,
+    severity: "DANGER" | "CAUTION" | "SAFE" = "DANGER"
+  ) => {
+    setTargetUrl(url);
+    setSelectedSeverity(severity);
+    setEvidenceData(null);
     setCurrentScreen("analyzing");
   };
 
@@ -48,19 +33,20 @@ export default function Home() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col justify-center py-4">
+      <main className="flex-1 flex flex-col justify-start py-6 pt-4 max-w-5xl mx-auto w-full">
         {currentScreen === "scan" && (
-          <ScanScreen
-            onStartScan={handleStartScan}
-            onUploadQR={handleUploadQR}
-            onSelectSample={handleSelectSample}
-          />
+          <ScanScreen onInspectDestination={handleInspectDestination} />
         )}
 
         {currentScreen === "analyzing" && (
           <AnalyzingScreen
             targetUrl={targetUrl}
-            onComplete={() => setCurrentScreen("result")}
+            onComplete={(evidence) => {
+              if (evidence) {
+                setEvidenceData(evidence);
+              }
+              setCurrentScreen("result");
+            }}
             onCancel={() => setCurrentScreen("scan")}
           />
         )}
@@ -68,7 +54,12 @@ export default function Home() {
         {currentScreen === "result" && (
           <ResultScreen
             initialSeverity={selectedSeverity}
-            onScanAnother={() => setCurrentScreen("scan")}
+            targetUrl={targetUrl}
+            evidence={evidenceData}
+            onScanAnother={() => {
+              setEvidenceData(null);
+              setCurrentScreen("scan");
+            }}
           />
         )}
       </main>
@@ -83,12 +74,12 @@ export default function Home() {
           </div>
 
           <div className="flex items-center gap-4 text-[11px]">
-            <span>Playwright Isolation Sandbox</span>
+            <span>FastAPI + Playwright Sandbox</span>
             <span>•</span>
-            <span>Neo-Brutalist UI</span>
+            <span>Disposable Container Isolation</span>
             <span>•</span>
             <span className="font-mono bg-white px-2 py-0.5 rounded border border-ink/20">
-              STAGE_1_COMPLETE
+              STAGE_3_ACTIVE
             </span>
           </div>
         </div>

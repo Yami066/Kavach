@@ -15,7 +15,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSelectScreen,
 }) => {
   return (
-    <header className="w-full pt-4 pb-2 px-4 sticky top-0 z-50">
+    <header className="w-full pt-4 pb-4 px-4 relative z-30">
       <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 bg-white/95 backdrop-blur-md rounded-full px-5 py-3 border-[3px] border-ink shadow-brutal transition-all">
         {/* Brand */}
         <div className="flex items-center gap-3">
@@ -27,7 +27,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               QR KAVACH
             </span>
             <span className="sticker bg-coral text-white text-[10px] px-2 py-0.5 rotate-[-2deg]">
-              STAGE 1
+              STAGE 4
             </span>
           </div>
         </div>
