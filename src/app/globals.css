@@ -1,0 +1,256 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #F5F1E8;
+  --color-ink: #17151F;
+  --color-paper: #FFFFFF;
+  --color-lavender: #C3B1F5;
+  --color-lavender-deep: #6E56D9;
+  --color-butter: #F9D56E;
+  --color-mint: #B9E4A1;
+  --color-sky: #A8CCF4;
+  --color-coral: #F2A58B;
+  --color-cream-yellow: #FDF1D0;
+  --color-danger: #D64545;
+  --color-danger-bg: #FDECEC;
+  --color-muted: #5A5870;
+
+  --radius-card: 28px;
+  --radius-input: 20px;
+  --radius-pill: 9999px;
+
+  --shadow-brutal: 6px 6px 0 0 #17151F;
+  --shadow-brutal-sm: 0 4px 0 0 #17151F;
+  --shadow-brutal-purple: 0 4px 0 0 #6E56D9;
+  --shadow-clay: 0 6px 14px rgba(23, 21, 31, 0.10), inset 0 2px 0 rgba(255, 255, 255, 0.8);
+
+  --font-display: var(--font-bricolage), sans-serif;
+  --font-sans: var(--font-outfit), sans-serif;
+  --font-mono: var(--font-jetbrains), monospace;
+}
+
+:root {
+  --color-cream: #F5F1E8;
+  --color-ink: #17151F;
+  --color-paper: #FFFFFF;
+  --color-lavender: #C3B1F5;
+  --color-lavender-deep: #6E56D9;
+  --color-butter: #F9D56E;
+  --color-mint: #B9E4A1;
+  --color-sky: #A8CCF4;
+  --color-coral: #F2A58B;
+  --color-cream-yellow: #FDF1D0;
+  --color-danger: #D64545;
+  --color-danger-bg: #FDECEC;
+  --color-muted: #5A5870;
+}
+
+body {
+  background-color: #F5F1E8;
+  background-image: radial-gradient(#17151F14 1px, transparent 1px);
+  background-size: 22px 22px;
+  font-family: var(--font-outfit), sans-serif;
+  color: #17151F;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* Card Neo-Brutalist base */
+.card-brutal {
+  background-color: #FFFFFF;
+  border: 3px solid #17151F;
+  border-radius: 28px;
+  box-shadow: 6px 6px 0 0 #17151F;
+  padding: 24px;
+}
+
+/* Button styles matching design.md */
+.btn-primary {
+  background-color: #17151F;
+  color: #FFFFFF;
+  border-radius: 9999px;
+  padding: 14px 28px;
+  font-weight: 600;
+  box-shadow: 0 4px 0 #6E56D9;
+  transition: transform 150ms ease-out, box-shadow 150ms ease-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  border: none;
+}
+.btn-primary:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 0 6px 0 #6E56D9;
+}
+.btn-primary:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0 2px 0 #6E56D9;
+}
+
+.btn-secondary {
+  background-color: #FFFFFF;
+  color: #17151F;
+  border: 3px solid #17151F;
+  border-radius: 9999px;
+  padding: 14px 28px;
+  font-weight: 600;
+  box-shadow: 0 4px 0 #17151F;
+  transition: transform 150ms ease-out, box-shadow 150ms ease-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+}
+.btn-secondary:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 0 6px 0 #17151F;
+}
+.btn-secondary:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0 2px 0 #17151F;
+}
+
+.btn-danger {
+  background-color: #D64545;
+  color: #FFFFFF;
+  border: 3px solid #17151F;
+  border-radius: 9999px;
+  padding: 14px 28px;
+  font-weight: 700;
+  box-shadow: 0 4px 0 #17151F;
+  transition: transform 150ms ease-out, box-shadow 150ms ease-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+}
+.btn-danger:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 0 6px 0 #17151F;
+}
+.btn-danger:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0 2px 0 #17151F;
+}
+
+/* Claymorphic chips & inputs */
+.chip {
+  background-color: #FFFFFF;
+  border-radius: 9999px;
+  padding: 8px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 6px 14px rgba(23, 21, 31, 0.10), inset 0 2px 0 rgba(255, 255, 255, 0.8);
+  transition: all 150ms ease-out;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  border: none;
+}
+.chip:hover {
+  transform: translateY(-1px);
+}
+
+.chip-active {
+  background-color: #B9E4A1;
+  border: 3px solid #17151F !important;
+  box-shadow: 0 4px 0 0 #17151F !important;
+}
+
+/* Badges */
+.badge {
+  border-radius: 9999px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Neo-brutalist stickers */
+.sticker {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-bricolage), sans-serif;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: -0.01em;
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 3px solid #17151F;
+  box-shadow: 3px 3px 0 0 #17151F;
+}
+
+/* Yellow marker swipe effect */
+.marker-highlight {
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+}
+.marker-highlight::after {
+  content: "";
+  position: absolute;
+  left: -4px;
+  right: -4px;
+  bottom: 4px;
+  height: 42%;
+  background-color: #F9D56E;
+  z-index: -1;
+  transform: rotate(-0.8deg);
+  border-radius: 4px;
+}
+
+/* Scanner laser beam animation */
+@keyframes laser-sweep {
+  0% {
+    top: 5%;
+    opacity: 0.8;
+  }
+  50% {
+    top: 90%;
+    opacity: 1;
+  }
+  100% {
+    top: 5%;
+    opacity: 0.8;
+  }
+}
+
+.animate-laser {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: #D64545;
+  box-shadow: 0 0 10px 2px rgba(214, 69, 69, 0.7);
+  animation: laser-sweep 2.4s ease-in-out infinite;
+}
+
+/* Pulse animation */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(214, 69, 69, 0.5);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 10px rgba(214, 69, 69, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(214, 69, 69, 0);
+  }
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
