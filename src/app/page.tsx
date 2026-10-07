@@ -79,7 +79,7 @@ export default function Home() {
             <span>Disposable Container Isolation</span>
             <span>•</span>
             <span className="font-mono bg-white px-2 py-0.5 rounded border border-ink/20">
-              STAGE_3_ACTIVE
+              STAGE_6_COMPLETE
             </span>
           </div>
         </div>

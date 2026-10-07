@@ -27,7 +27,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               QR KAVACH
             </span>
             <span className="sticker bg-coral text-white text-[10px] px-2 py-0.5 rotate-[-2deg]">
-              STAGE 4
+              DEMO READY · MVP
             </span>
           </div>
         </div>

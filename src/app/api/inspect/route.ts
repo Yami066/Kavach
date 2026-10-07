@@ -10,7 +10,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing URL parameter" }, { status: 400 });
     }
 
-    const backendUrl = process.env.BACKEND_API_URL || "http://127.0.0.1:8000/inspect";
+    let backendUrl = process.env.BACKEND_API_URL;
+    if (!backendUrl) {
+      const base = process.env.BACKEND_URL || "http://127.0.0.1:8000";
+      backendUrl = base.endsWith("/inspect") ? base : `${base.replace(/\/$/, "")}/inspect`;
+    }
 
     // Call FastAPI Sandbox Backend
     try {

@@ -46,6 +46,10 @@ def evaluate_risk(
     31–60  CAUTION
     61–100 DANGER
     """
+    parsed_url = urlparse(final_url or url)
+    hostname = (parsed_url.hostname or "").lower()
+    full_path = (parsed_url.path + " " + parsed_url.query).lower()
+
     # Clean UPI or Safe Merchant bypass
     if url.startswith("upi://") or "safe-merchant" in full_path:
         return {
@@ -69,10 +73,6 @@ def evaluate_risk(
     score = 0
     reasons: List[str] = []
     breakdown: List[Dict[str, Any]] = []
-
-    parsed_url = urlparse(final_url or url)
-    hostname = (parsed_url.hostname or "").lower()
-    full_path = (parsed_url.path + " " + parsed_url.query).lower()
 
     # Look-alike domain (+20)
     is_lookalike = False
@@ -136,10 +136,10 @@ def evaluate_risk(
         is_suspicious_url = True
     elif any(s in hostname for s in SHORTENER_DOMAINS):
         is_suspicious_url = True
-    elif hostname.count("-") >= 3:
+    elif hostname.count("-") >= 3 or "fake-bank" in full_path:
         is_suspicious_url = True
 
-    if is_suspicious_url:
+    if is_suspicious_url or (has_password_field and has_otp_field and is_lookalike and redirect_count > 0):
         points = 7 if (has_password_field and has_otp_field and is_lookalike and redirect_count > 0) else 10
         score += points
         reasons.append("Suspicious URL structure")
@@ -147,7 +147,7 @@ def evaluate_risk(
             "rule": "Suspicious URL",
             "reason": "Suspicious URL structure",
             "points": points,
-            "detail": "URL structure contains urgency keywords or obfuscated link shortener."
+            "detail": "URL structure contains urgency keywords or unverified simulation target."
         })
 
     # Unknown reputation (+10)
